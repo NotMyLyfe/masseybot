@@ -14,6 +14,10 @@ module.exports = {
     async execute(interaction: CommandInteraction){
         const member = interaction.member as GuildMember;
         await interaction.deferReply({ ephemeral: true });
+        if(!member){
+            interaction.editReply("I'm sorry, commands in private messages are currently not supported.");
+            return;
+        }
         if(await discordUsers.exists({discordId:member.id})){
             interaction.editReply("You're already verified! No need to verify again! (If you're seeing this, but do not have access to the server, please contact an admin)");
             return;
