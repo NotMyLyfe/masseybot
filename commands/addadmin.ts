@@ -9,7 +9,7 @@ module.exports = {
         .addRoleOption(option => option.setName('admin').setDescription('New administrator role').setRequired(true)),
     async execute(interaction: CommandInteraction){
         const member = interaction.member as GuildMember;
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply();
         const serverInfo = await discordServers.findOne({serverId : interaction.guildId});
         if(!member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) && !serverInfo.administratorRoles.some(val => (member as any)._roles.includes(val))){
             await interaction.editReply({content: "You do not have permission to access this command."});
