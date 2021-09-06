@@ -2,6 +2,12 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, GuildMember, Permissions } from "discord.js";
 import { discordServers } from "../models/schema";
 
+declare module "discord.js"{
+    export interface GuildMember{
+        _roles: Array<string>
+    }
+}
+
 module.exports = {
     data : new SlashCommandBuilder()
         .setName('addadmin')
@@ -11,7 +17,7 @@ module.exports = {
         const member = interaction.member as GuildMember;
         await interaction.deferReply();
         const serverInfo = await discordServers.findOne({serverId : interaction.guildId});
-        if(!member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) && !serverInfo.administratorRoles.some(val => (member as any)._roles.includes(val))){
+        if(!member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) && !serverInfo.administratorRoles.some(val => member._roles.includes(val))){
             await interaction.editReply({content: "You do not have permission to access this command."});
             return;
         }

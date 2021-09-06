@@ -1,6 +1,12 @@
 import { discordServers, discordUsers } from './schema';
 import client from '../index';
 
+declare module "discord.js"{
+    export interface GuildMember{
+        _roles: Array<string>
+    }
+}
+
 export default async() => {
     while(true){
         const users = await discordUsers.find();
@@ -35,7 +41,7 @@ export default async() => {
 
             for(let [mKey, mVal] of members){
                 const userDetails = users.filter(user => user.discordId == mKey);
-                if(userDetails.length == 0 || (mVal as any)._roles.includes(verifiedRole) || mVal.user.bot) continue;
+                if(userDetails.length == 0 || mVal._roles.includes(verifiedRole) || mVal.user.bot) continue;
                 try{
                     if(guild.me.roles.highest.comparePositionTo(mVal.roles.highest) > 0 && guild.ownerId != mKey)
                         mVal.setNickname(userDetails[0].name);
