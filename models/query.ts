@@ -37,22 +37,27 @@ export default async() => {
                 await discordServers.updateOne({serverId : key}, {verifiedRole: "-1"});
                 return;
             }
-            const members = await guild.members.fetch();
-
-            for(let [mKey, mVal] of members){
-                const userDetails = users.filter(user => user.discordId == mKey);
-                if(userDetails.length == 0 || mVal._roles.includes(verifiedRole) || mVal.user.bot) continue;
-                try{
-                    if(guild.me.roles.highest.comparePositionTo(mVal.roles.highest) > 0 && guild.ownerId != mKey)
-                        mVal.setNickname(userDetails[0].name);
-                    else
-                        guild.systemChannel.send(`User <@${mVal.id}> has a higher role, unable to change nickname.`);
-                    mVal.roles.add(verifiedRole);
+            try{
+                const members = await guild.members.fetch({time: 600e3});
+                for(let [mKey, mVal] of members){
+                    const userDetails = users.filter(user => user.discordId == mKey);
+                    if(userDetails.length == 0 || mVal._roles.includes(verifiedRole) || mVal.user.bot) continue;
+                    try{
+                        if(guild.me.roles.highest.comparePositionTo(mVal.roles.highest) > 0 && guild.ownerId != mKey)
+                            mVal.setNickname(userDetails[0].name);
+                        else
+                            guild.systemChannel.send(`User <@${mVal.id}> has a higher role, unable to change nickname.`);
+                        mVal.roles.add(verifiedRole);
+                    }
+                    catch(err){
+                        console.log(err);
+                        continue;
+                    }
                 }
-                catch(err){
-                    console.log(err);
-                    continue;
-                }
+            }
+            catch(err){
+                console.log(err);
+                continue;
             }
         }
         await new Promise(resolve => setTimeout(resolve, 500));
