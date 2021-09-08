@@ -28,24 +28,20 @@ export default async() => {
             if(verifiedRole == "-1") continue;
             const role = await guild.roles.fetch(verifiedRole);
             if(!role){
-                try{
-                    guild.systemChannel.send("Verified role has been removed from the server, please update verified role.");
-                }
-                catch(err){
+                guild.systemChannel.send("Verified role has been removed from the server, please update verified role.")
+                .catch(err => {
                     console.log(`Unable to send message to guild ${guild.id}, possibly missing perms to send commands in the guild system channel?`);
                     console.log(err);
-                }
+                });
                 await discordServers.updateOne({serverId : key}, {verifiedRole: "-1"});
                 return;
             }
             if(guild.me.roles.highest.comparePositionTo(role) <= 0) {
-                try{
-                    guild.systemChannel.send("Verified role is higher than the bot's highest role, please update verified role.");
-                }
-                catch(err){
+                guild.systemChannel.send("Verified role is higher than the bot's highest role, please update verified role.")
+                .catch(err => {
                     console.log(`Unable to send message to guild ${guild.id}, possibly missing perms to send commands in the guild system channel?`);
                     console.log(err);
-                }
+                });
                 await discordServers.updateOne({serverId : key}, {verifiedRole: "-1"});
                 return;
             }
@@ -58,7 +54,11 @@ export default async() => {
                         if(guild.me.roles.highest.comparePositionTo(mVal.roles.highest) > 0 && guild.ownerId != mKey)
                             mVal.setNickname(userDetails[0].name);
                         else
-                            guild.systemChannel.send(`User <@${mVal.id}> has a higher role, unable to change nickname.`);
+                            guild.systemChannel.send(`User <@${mVal.id}> has a higher role, unable to change nickname.`)
+                            .catch(err => {
+                                console.log(`Unable to send message to guild ${guild.id}, possibly missing perms to send commands in the guild system channel?`);
+                                console.log(err);
+                            });
                         mVal.roles.add(verifiedRole);
                     }
                     catch(err){

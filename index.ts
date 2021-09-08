@@ -54,20 +54,22 @@ client.on('guildCreate', async (guild : Guild) => {
         verificationChannels: [],
         administratorRoles: []
     }}, {upsert: true}).catch(err => console.log(err));
-    try{
-        guild.systemChannel.send("Thank you for using MasseyBot. To start, please add a verified role by using the \`/setrole\` command");
-    }
-    catch(err){
+    guild.systemChannel.send("Thank you for using MasseyBot. To start, please add a verified role by using the \`/setrole\` command")
+    .catch(err => {
         console.log(`Unable to send message to guild ${guild.id}, possibly missing perms to send commands in the guild system channel?`);
         console.log(err);
-    }
+    });
 });
 
 client.on('guildMemberAdd', async member=>{
     const userInfo = await discordUsers.findOne({discordId : member.id});
     if(userInfo){
         const serverInfo = await discordServers.findOne({serverId : member.guild.id});
-        member.send(`Welcome to ${member.guild.name}! Since you've already verified yourself with MasseyBot, no need to verify yourself again.`);
+        member.send(`Welcome to ${member.guild.name}! Since you've already verified yourself with MasseyBot, no need to verify yourself again.`)
+        .catch(err => {
+            console.log(`Unable to send message to user ${member.id}, member possibly has private messages disabled?`);
+            console.log(err);
+        });
         try{
             member.setNickname(userInfo.name);
             if(serverInfo && serverInfo.verifiedRole != "-1" || member.guild.roles.cache.find(r => r.id == serverInfo.verifiedRole != undefined)){
@@ -79,7 +81,11 @@ client.on('guildMemberAdd', async member=>{
         }
     }
     else{
-        member.send(`Welcome to ${member.guild.name}! Please verify yourself in the verification channel.`);
+        member.send(`Welcome to ${member.guild.name}! Please verify yourself in the verification channel.`)
+        .catch(err => {
+            console.log(`Unable to send message to user ${member.id}, member possibly has private messages disabled?`);
+            console.log(err);
+        });
     }
 });
 
