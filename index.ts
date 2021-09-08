@@ -3,7 +3,7 @@ import * as fs from 'fs';
 
 import { discordServers, discordUsers } from './models/schema';
 import query from './models/query';
-import { Client, Collection, Intents } from 'discord.js';
+import { Client, Collection, Intents, Guild } from 'discord.js';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 
@@ -47,13 +47,20 @@ client.on('ready', () => {
     query();
 });
 
-client.on('guildCreate', async guild => {
+client.on('guildCreate', async (guild : Guild) => {
     await discordServers.updateOne({serverId: guild.id}, {$setOnInsert: {
         serverId: guild.id,
         verifiedRole: "-1",
         verificationChannels: [],
         administratorRoles: []
     }}, {upsert: true}).catch(err => console.log(err));
+    try{
+        guild.systemChannel.send("Thank you for using MasseyBot. To start, please add a verified role by using the \`/setrole\` command");
+    }
+    catch(err){
+        console.log(`Unable to send message to guild ${guild.id}, possibly missing perms to send commands in the guild system channel?`);
+        console.log(err);
+    }
 });
 
 client.on('guildMemberAdd', async member=>{
