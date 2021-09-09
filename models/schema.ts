@@ -13,7 +13,7 @@ db.on('error', err => console.log(err));
 interface userSchema extends mongoose.Document{
     name: string;
     discordId: string;
-    studentId: number;
+    email: string;
 };
 
 interface serverSchema extends mongoose.Document{
@@ -31,8 +31,8 @@ const discordUsers = mongoose.model<userSchema>('DiscordUser', new mongoose.Sche
         type: String,
         required: true
     },
-    studentId: {
-        type: Number,
+    email: {
+        type: String,
         required: true
     }
 }));
