@@ -46,7 +46,7 @@ export default async() => {
                 return;
             }
             try{
-                const members = await guild.members.fetch({time: 600e3});
+                const members = await guild.members.fetch({time: 120e3});
                 for(let [mKey, mVal] of members){
                     const userDetails = users.filter(user => user.discordId == mKey);
                     if(userDetails.length == 0 || mVal._roles.includes(verifiedRole) || mVal.user.bot) continue;

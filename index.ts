@@ -72,12 +72,10 @@ client.on('guildMemberAdd', async member=>{
         });
         try{
             member.setNickname(userInfo.name);
-            if(serverInfo && serverInfo.verifiedRole != "-1" || member.guild.roles.cache.find(r => r.id == serverInfo.verifiedRole != undefined)){
-                member.roles.add(serverInfo.verifiedRole);
-            }
+            member.roles.add(serverInfo.verifiedRole).catch(console.log);
         }
         catch(err){
-            console.log(err, member.permissions.has('MANAGE_ROLES'));
+            console.log(err);
         }
     }
     else{
