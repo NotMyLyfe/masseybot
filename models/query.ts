@@ -18,11 +18,12 @@ export default async() => {
                     serverId: key,
                     verifiedRole: "-1",
                     verificationChannels: [],
-                    administratorRoles: []
+                    administratorRoles: [],
+                    autoName: true
                 });
                 continue;
             }
-            
+            const autoName = serverDetails[0].autoName;
             const guild = await client.guilds.fetch(key);
             const verifiedRole = serverDetails[0].verifiedRole;
             if(verifiedRole == "-1") continue;
@@ -51,14 +52,16 @@ export default async() => {
                     const userDetails = users.filter(user => user.discordId == mKey);
                     if(userDetails.length == 0 || mVal._roles.includes(verifiedRole) || mVal.user.bot) continue;
                     try{
-                        if(guild.me.roles.highest.comparePositionTo(mVal.roles.highest) > 0 && guild.ownerId != mKey)
-                            mVal.setNickname(userDetails[0].name);
-                        else
-                            guild.systemChannel.send(`User <@${mVal.id}> has a higher role, unable to change nickname.`)
-                            .catch(err => {
-                                console.log(`Unable to send message to guild ${guild.id}, possibly missing perms to send commands in the guild system channel?`);
-                                console.log(err);
-                            });
+                        if(autoName){
+                            if(guild.me.roles.highest.comparePositionTo(mVal.roles.highest) > 0 && guild.ownerId != mKey)
+                                mVal.setNickname(userDetails[0].name);
+                            else
+                                guild.systemChannel.send(`User <@${mVal.id}> has a higher role, unable to change nickname.`)
+                                .catch(err => {
+                                    console.log(`Unable to send message to guild ${guild.id}, possibly missing perms to send commands in the guild system channel?`);
+                                    console.log(err);
+                                });
+                        }
                         mVal.roles.add(verifiedRole);
                     }
                     catch(err){

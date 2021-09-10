@@ -52,7 +52,8 @@ client.on('guildCreate', async (guild : Guild) => {
         serverId: guild.id,
         verifiedRole: "-1",
         verificationChannels: [],
-        administratorRoles: []
+        administratorRoles: [],
+        autoName: true
     }}, {upsert: true}).catch(err => console.log(err));
     guild.systemChannel.send("Thank you for using MasseyBot. To start, please add a verified role by using the \`/setrole\` command")
     .catch(err => {
