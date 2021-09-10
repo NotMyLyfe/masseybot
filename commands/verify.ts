@@ -10,7 +10,7 @@ module.exports = {
         .setName('verify')
         .setDescription("Verify yourself and associate yourself with your student ID")
         .addIntegerOption(option => option.setName('id').setDescription('Your student ID').setRequired(true))
-        .addStringOption(option => option.setName('name').setDescription('Your full name').setRequired(true)),
+        .addStringOption(option => option.setName('name').setDescription('Your full name (with capitalization)').setRequired(true)),
     async execute(interaction: CommandInteraction){
         const member = interaction.member as GuildMember;
         await interaction.deferReply({ ephemeral: true });
