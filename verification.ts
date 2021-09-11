@@ -1,6 +1,6 @@
 require('dotenv').config();
-import * as express from 'express';
-import * as jwt from 'jsonwebtoken';
+import express from 'express';
+import jwt from 'jsonwebtoken';
 import { discordUsers } from './models/schema';
 
 const app = express();

@@ -2,7 +2,7 @@ require('dotenv').config();
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, GuildMember, Permissions } from "discord.js";
 import { discordUsers } from "../models/schema";
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import sendmail from '../mail/sendmail';
 
 module.exports = {

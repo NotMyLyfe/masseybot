@@ -1,5 +1,5 @@
 require('dotenv').config();
-import * as fs from 'fs';
+import fs from 'fs';
 
 import { discordServers, discordUsers } from './models/schema';
 import query from './models/query';
