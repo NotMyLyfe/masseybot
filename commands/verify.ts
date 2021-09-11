@@ -1,6 +1,6 @@
 require('dotenv').config();
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction, GuildMember, Permissions } from "discord.js";
+import { CommandInteraction, User, Permissions } from "discord.js";
 import { discordUsers } from "../models/schema";
 import jwt from 'jsonwebtoken';
 import sendmail from '../mail/sendmail';
@@ -12,12 +12,8 @@ module.exports = {
         .addIntegerOption(option => option.setName('id').setDescription('Your student ID').setRequired(true))
         .addStringOption(option => option.setName('name').setDescription('Your full name (with capitalization)').setRequired(true)),
     async execute(interaction: CommandInteraction){
-        const member = interaction.member as GuildMember;
-        await interaction.deferReply({ ephemeral: true });
-        if(!member){
-            interaction.editReply("I'm sorry, commands in private messages are currently not supported.");
-            return;
-        }
+        const member = interaction.user;
+        await interaction.deferReply({ ephemeral: interaction.inGuild() });
         if(await discordUsers.exists({discordId:member.id})){
             interaction.editReply("You're already verified! No need to verify again! (If you're seeing this, but do not have access to the server, please contact an admin)");
             return;

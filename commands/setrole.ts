@@ -8,6 +8,10 @@ module.exports = {
         .setDescription("Sets verified role for this server")
         .addRoleOption(option => option.setName('role').setDescription('Verified role').setRequired(true)),
     async execute(interaction: CommandInteraction){
+        if(!interaction.inGuild()){
+            await (interaction as CommandInteraction).reply("Unfortunately, this command cannot be used in a direct message.");
+            return;
+        }
         const member = interaction.member as GuildMember;
         await interaction.deferReply();
         const serverInfo = await discordServers.findOne({serverId : interaction.guildId});

@@ -14,6 +14,10 @@ module.exports = {
         .setDescription("Sets whether or not users should be renamed to their full name upon being verified")
         .addBooleanOption(option => option.setName('boolean').setDescription('True or False?').setRequired(true)),
     async execute(interaction: CommandInteraction){
+        if(!interaction.inGuild()){
+            await (interaction as CommandInteraction).reply("Unfortunately, this command cannot be used in a direct message.");
+            return;
+        }
         const member = interaction.member as GuildMember;
         await interaction.deferReply();
         const serverInfo = await discordServers.findOne({serverId : interaction.guildId});
