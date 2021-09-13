@@ -1,10 +1,9 @@
 require('dotenv').config();
-import express from 'express';
+import express, { request } from 'express';
 import jwt from 'jsonwebtoken';
+import axios from 'axios';
 import { discordUsers } from './models/schema';
-import { RecaptchaV2 } from 'express-recaptcha/dist';
 
-const recaptcha = new RecaptchaV2(process.env.RECAPTCHA_SITE_KEY, process.env.RECAPTCHA_SECRET_KEY);
 const app = express();
 
 export interface TokenInterface{
@@ -19,14 +18,15 @@ app.use(express.urlencoded({
 }));
 
 app.set('views', __dirname + '/views');
-app.set('view engine', 'pug');
 
-app.get('/verify/:id', recaptcha.middleware.render, (req, res) => {
-    res.render('index', { captcha : res.recaptcha });
+app.get('/verify/:id', (req, res) => {
+    res.render(__dirname + '/views/verify.html');
 });
 
 app.post('/verify/:id', async(req, res) => {
-    recaptcha.verify(req, async(err, data) => {
+    console.log(req.body);
+    res.render(__dirname + '/views/verify.html');
+    /*recaptcha.verify(req, async(err, data) => {
         if(!err){
             try{
                 let decoded = jwt.verify(req.params.id, process.env.JWT_SECRET) as TokenInterface;
@@ -57,7 +57,7 @@ app.post('/verify/:id', async(req, res) => {
             });
         }
     });
-    
+    */
 });
 
 app.listen(3000, ()=>{
