@@ -9,7 +9,8 @@ html
             button(type='submit') Verify
     else if (error)
         div(style="color:red") Error : #{error}
-        a(href=path) Retry
+        if(path)
+            a(href=path) Retry
     else 
         div(style="color:green") #{data}
     script.
