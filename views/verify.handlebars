@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MasseyBot Verification</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>MasseyBot Verification</h1>
+        {{#if captcha}}
+            <form id="verify" method="POST">
+                <div class="h-captcha" data-sitekey={{captcha}}></div>
+                <input type="submit"value="Verify" class="btn btn-primary">
+            </form>
+        {{else if error}}
+            <h6 style="color: red;">Invalid token! Contact an admin!</h6>
+        {{/if}}
+    </div>
+
+    {{#if error}}
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: '{{error}}'
+            });
+        </script>
+    {{else if success}}
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'You have successfully verified yourself!'
+            }).then(() => {
+                window.location = '{{redirect}}'
+            });
+        </script>
+    {{/if}}
+</body>
+</html>

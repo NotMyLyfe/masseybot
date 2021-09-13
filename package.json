@@ -19,11 +19,13 @@
   "homepage": "https://github.com/NotMyLyfe/masseybot#readme",
   "dependencies": {
     "@discordjs/rest": "^0.1.0-canary.0",
+    "@types/express-handlebars": "^5.3.1",
     "axios": "^0.21.4",
     "discord-api-types": "^0.22.0",
     "discord.js": "^13.1.0",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
+    "express-handlebars": "^5.3.3",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.0.4"
   },
