@@ -87,6 +87,10 @@ app.post('/verify/:id', async(req, res) => {
     });
 });
 
+app.use((req, res) => {
+    res.redirect(process.env.REDIRECT_URL);
+})
+
 app.listen(3000, ()=>{
     console.log('Listening on port 3000');
 });
