@@ -8,8 +8,8 @@ export default function (email : string, token : string, name : string){
             to: email,
             from: process.env.FROM_EMAIL,
             subject: 'Vincent Massey Discord Club Verification',
-            text: `Hello ${name}!\n\nThank you for joining a club here at Vincent Massey Secondary School on Discord.\n\nIn order to maintain member privacy and security, we are requiring all users to verify themselves with their student email. To complete your account verification, please visit ${link} .\n\nIf you are in need of any assistance, please contact a Discord administrator. We look forward to another year at Vincent Massey!`,
-            html: `Hello ${name}!<br><br>Thank you for joining a club here at Vincent Massey Secondary School on Discord.<br><br>In order to maintain member privacy and security, we are requiring all users to verify themselves with their student email. To complete your account verification, please <a href="${link}">click here</a>.<br><br>If you are in need of any assistance, please contact a Discord administrator. We look forward to another year at Vincent Massey!`
+            text: `Hello ${name}!\n\nThank you for joining a club here at Vincent Massey Secondary School on Discord.\n\nIn order to maintain member privacy and security, we are requiring all users to verify themselves with their student email. To complete your account verification, please visit ${link} .\n\nIf you are in need of any assistance, or have any additional questions, please contact a Discord administrator. We look forward to another year at Vincent Massey!\n\nNote: This bot will only collect your school ID, full name, and Discord ID. No other personal data will be collected, and upon the end of the school year, all data collected will be destroyed.\n\nPowered by VMCS Club: https://vmcs.club`,
+            html: `Hello ${name}!<br><br>Thank you for joining a club here at Vincent Massey Secondary School on Discord.<br><br>In order to maintain member privacy and security, we are requiring all users to verify themselves with their student email. To complete your account verification, please <a href="${link}">click here</a>.<br><br>If you are in need of any assistance, or have any additional questions, please contact a Discord administrator. We look forward to another year at Vincent Massey!<br><br>Note: This bot will only collect your school ID, full name, and Discord ID. No other personal data will be collected, and upon the end of the school year, all data collected will be destroyed.<br><br>Powered by <a href="https://vmcs.club">VMCS Club</a>`
         });
         axios({
             method: 'post',
@@ -22,7 +22,8 @@ export default function (email : string, token : string, name : string){
             headers:{
                 'Content-Type':'application/x-www-form-urlencoded'
             }
-        }).then(() => {
+        }).then((res) => {
+            console.log(res.data, email, name, link);
             return resolve(undefined);
         }).catch((err) => {
             console.log(err);
