@@ -48,13 +48,6 @@ client.on('ready', () => {
 });
 
 client.on('guildCreate', async (guild : Guild) => {
-    await discordServers.updateOne({serverId: guild.id}, {$setOnInsert: {
-        serverId: guild.id,
-        verifiedRole: "-1",
-        verificationChannels: [],
-        administratorRoles: [],
-        autoName: true
-    }}, {upsert: true}).catch(err => console.log(err));
     guild.systemChannel.send("Thank you for using MasseyBot. To start, please add a verified role by using the \`/setrole\` command")
     .catch(err => {
         console.log(`Unable to send message to guild ${guild.id}, possibly missing perms to send commands in the guild system channel?`);
