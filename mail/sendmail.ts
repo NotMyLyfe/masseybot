@@ -22,8 +22,7 @@ export default function (email : string, token : string, name : string){
             headers:{
                 'Content-Type':'application/x-www-form-urlencoded'
             }
-        }).then((res) => {
-            console.log(res.data, email, name, link);
+        }).then(() => {
             return resolve(undefined);
         }).catch((err) => {
             console.log(err);
