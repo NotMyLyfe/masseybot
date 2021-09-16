@@ -50,11 +50,11 @@ export default async() => {
                 const members = await guild.members.fetch({time: 120e3});
                 for(let [mKey, mVal] of members){
                     const userDetails = users.filter(user => user.discordId == mKey);
-                    if(userDetails.length == 0 || mVal._roles.includes(verifiedRole) || mVal.user.bot) continue;
+                    if(userDetails.length == 0 || mVal._roles.includes(verifiedRole) || mVal.user.bot || !userDetails[0].name) continue;
                     try{
                         if(autoName){
                             if(guild.me.roles.highest.comparePositionTo(mVal.roles.highest) > 0 && guild.ownerId != mKey)
-                                mVal.setNickname(userDetails[0].name);
+                                await mVal.setNickname(userDetails[0].name);
                             else
                                 guild.systemChannel.send(`User <@${mVal.id}> has a higher role, unable to change nickname.`)
                                 .catch(err => {
@@ -62,7 +62,7 @@ export default async() => {
                                     console.log(err);
                                 });
                         }
-                        mVal.roles.add(verifiedRole);
+                        await mVal.roles.add(verifiedRole);
                     }
                     catch(err){
                         console.log(err);
