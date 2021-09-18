@@ -59,17 +59,27 @@ client.on('guildMemberAdd', async member=>{
     const userInfo = await discordUsers.findOne({discordId : member.id});
     if(userInfo){
         const serverInfo = await discordServers.findOne({serverId : member.guild.id});
-        member.send(`Welcome to ${member.guild.name}! Since you've already verified yourself with MasseyBot, no need to verify yourself again.`)
-        .catch(err => {
-            console.log(`Unable to send message to user ${member.id}, member possibly has private messages disabled?`);
-            console.log(err);
-        });
-        try{
-            member.setNickname(userInfo.name);
-            member.roles.add(serverInfo.verifiedRole).catch(console.log);
+        if(serverInfo.verifiedRole == "-1"){
+            member.send(`Welcome to ${member.guild.name}! A verified role has yet to be selected on this server, but since you've already verified yourself, you will be automatically verified once a role has been selected!`)
+            .catch(err => {
+                console.log(`Unable to send message to user ${member.id}, member possibly has private messages disabled?`);
+                console.log(err);
+            });
         }
-        catch(err){
-            console.log(err);
+        else{
+            member.send(`Welcome to ${member.guild.name}! Since you've already verified yourself with MasseyBot, no need to verify yourself again.`)
+            .catch(err => {
+                console.log(`Unable to send message to user ${member.id}, member possibly has private messages disabled?`);
+                console.log(err);
+            });
+            try{
+                if(serverInfo.autoName)
+                    await member.setNickname(userInfo.name);
+                await member.roles.add(serverInfo.verifiedRole);
+            }
+            catch(err){
+                console.log(err);
+            }
         }
     }
     else{
