@@ -83,7 +83,7 @@ client.on('guildMemberAdd', async member=>{
         }
     }
     else{
-        member.send(`Welcome to ${member.guild.name}! Please verify yourself in the verification channel.`)
+        member.send(`Welcome to ${member.guild.name}! Please verify yourself in the verification channel or in here.`)
         .catch(err => {
             console.log(`Unable to send message to user ${member.id}, member possibly has private messages disabled?`);
             console.log(err);
