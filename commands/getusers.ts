@@ -32,7 +32,7 @@ module.exports = {
                 discordId : object.discordId,
                 name : object.name,
                 ...(interaction.options.getBoolean('email')) && {email : object.email}
-            }).join(',')).join('\n');
+            }).join(',')).join('\r\n');
             await interaction.editReply({"content" : "Alright, here's a CSV of all joined users.", "files" : [new MessageAttachment(Buffer.from(header + verifiedUsers, "utf-8"), 'users.csv')]});
         }
         catch(err){
