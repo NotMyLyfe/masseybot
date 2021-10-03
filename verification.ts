@@ -1,5 +1,5 @@
 require('dotenv').config();
-import express, { request } from 'express';
+import express from 'express';
 import jwt from 'jsonwebtoken';
 import axios from 'axios';
 import exphbs from 'express-handlebars';
