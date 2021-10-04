@@ -32,7 +32,7 @@ module.exports = {
                 return;
             }
             const userGuild = await interaction.guild.members.fetch(userId);
-            if(interaction.guild.me.roles.highest.comparePositionTo(userGuild.roles.highest) > 0){
+            if(interaction.guild.me.roles.highest.comparePositionTo(userGuild.roles.highest) <= 0){
                 await interaction.editReply({"content" : `User <@${userId}> has a higher role, unable to change nickname.`});
                 return;
             }
