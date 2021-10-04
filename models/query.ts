@@ -9,7 +9,6 @@ declare module "discord.js"{
 
 export default async() => {
     while(true){
-        const users = await discordUsers.find();
         const servers = await discordServers.find();
         for(let [key, val] of client.guilds.cache){
             const serverDetails = servers.filter(server => server.serverId == key);
@@ -28,6 +27,7 @@ export default async() => {
             const verifiedRole = serverDetails[0].verifiedRole;
             if(verifiedRole == "-1") continue;
             const role = await guild.roles.fetch(verifiedRole);
+            const highestRoleMe = guild.me.roles.highest;
             if(!role){
                 guild.systemChannel.send("Verified role has been removed from the server, please update verified role.")
                 .catch(err => {
@@ -37,7 +37,7 @@ export default async() => {
                 await discordServers.updateOne({serverId : key}, {verifiedRole: "-1"});
                 return;
             }
-            if(guild.me.roles.highest.comparePositionTo(role) <= 0) {
+            if(highestRoleMe.comparePositionTo(role) <= 0) {
                 guild.systemChannel.send("Verified role is higher than the bot's highest role, please update verified role.")
                 .catch(err => {
                     console.log(`Unable to send message to guild ${guild.id}, possibly missing perms to send commands in the guild system channel?`);
@@ -48,21 +48,24 @@ export default async() => {
             }
             try{
                 const members = await guild.members.fetch({time: 120e3});
-                for(let [mKey, mVal] of members){
-                    const userDetails = users.filter(user => user.discordId == mKey);
-                    if(userDetails.length == 0 || mVal._roles.includes(verifiedRole) || mVal.user.bot || !userDetails[0].name) continue;
+                const users = (await discordUsers.find()).filter(user => members.has(user.discordId));
+                for (let user of users){
+                    const userGuild = members.get(user.discordId);
+                    if(userGuild._roles.includes(verifiedRole)) continue;
                     try{
                         if(autoName){
-                            if(guild.me.roles.highest.comparePositionTo(mVal.roles.highest) > 0 && guild.ownerId != mKey)
-                                await mVal.setNickname(userDetails[0].name);
-                            else
-                                guild.systemChannel.send(`User <@${mVal.id}> has a higher role, unable to change nickname.`)
+                            if(highestRoleMe.comparePositionTo(userGuild.roles.highest) > 0 && guild.ownerId != user.discordId){
+                                await userGuild.setNickname(user.name);
+                            }
+                            else{
+                                guild.systemChannel.send(`User <@${user.discordId}> has a higher role, unable to change nickname.`)
                                 .catch(err => {
                                     console.log(`Unable to send message to guild ${guild.id}, possibly missing perms to send commands in the guild system channel?`);
                                     console.log(err);
                                 });
+                            }
                         }
-                        await mVal.roles.add(verifiedRole);
+                        await userGuild.roles.add(verifiedRole);
                     }
                     catch(err){
                         console.log(err);
