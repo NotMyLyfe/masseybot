@@ -15,7 +15,7 @@ module.exports = {
         const member = interaction.member as GuildMember;
         await interaction.deferReply();
         const serverInfo = await discordServers.findOne({serverId : interaction.guildId});
-        if(!member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) && !serverInfo.administratorRoles.some(val => (member as any)._roles.includes(val))){
+        if(!member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) && !serverInfo.administratorRoles.some(val => member.roles.cache.has(val))){
             await interaction.editReply({content: "You do not have permission to access this command."});
             return;
         }

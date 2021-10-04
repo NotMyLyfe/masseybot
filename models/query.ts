@@ -1,12 +1,6 @@
 import { discordServers, discordUsers } from './schema';
 import client from '../index';
 
-declare module "discord.js"{
-    export interface GuildMember{
-        _roles: Array<string>
-    }
-}
-
 export default async() => {
     while(true){
         const servers = await discordServers.find();
@@ -51,7 +45,7 @@ export default async() => {
                 const users = (await discordUsers.find()).filter(user => members.has(user.discordId));
                 for (let user of users){
                     const userGuild = members.get(user.discordId);
-                    if(userGuild._roles.includes(verifiedRole)) continue;
+                    if(userGuild.roles.cache.has(verifiedRole)) continue;
                     try{
                         if(autoName){
                             if(highestRoleMe.comparePositionTo(userGuild.roles.highest) > 0 && guild.ownerId != user.discordId){
