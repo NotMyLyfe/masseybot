@@ -36,7 +36,6 @@ module.exports = {
             await interaction.editReply({"content" : "Alright, here's a CSV of all joined users.", "files" : [new MessageAttachment(Buffer.from(header + verifiedUsers, "utf-8"), 'users.csv')]});
         }
         catch(err){
-            console.log(err);
             await interaction.editReply({"content" : "Encountered an error while querrying for users, please try command again"});
         }
     }
