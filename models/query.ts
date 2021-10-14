@@ -12,9 +12,9 @@ export default async() => {
         for(let [key, val] of client.guilds.cache){
             if(!serversQuerrying[key]){
                 serversQuerrying[key] = true;
-                piscana.run({serverId : key, myId : client.user.id}).then(() => {
-                    serversQuerrying[key] = false;
-                }).catch((err) => {console.log(err)});
+                piscana.run({serverId : key, myId : client.user.id})
+                .catch((err) => {console.log(err)})
+                .then(() => {serversQuerrying[key] = false});
             }
         }
         await new Promise(resolve => setTimeout(resolve, 1000));
