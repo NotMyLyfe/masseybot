@@ -32,7 +32,6 @@
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
-    "@types/jsonwebtoken": "^8.5.5",
-    "@types/workerpool": "^6.1.0"
+    "@types/jsonwebtoken": "^8.5.5"
   }
 }
