@@ -81,8 +81,8 @@ export default async ({serverId, myId} : queryParams) => {
     for (let user of users){
         const userRoles = members[user.discordId];
         if(userRoles.includes(verifiedRole)) continue;
-        
-        const userHasHigherRole = userRoles.some(obj => obj.position >= highestRole);
+
+        const userHasHigherRole = userRoles.some(roleId => roles[roleId].position >= highestRole);
         const canName = guild.owner_id != user.discordId && !userHasHigherRole;
         discordAPI('patch', `/guilds/${serverId}/members/${user.discordId}`, {
             "roles" : userRoles.concat([verifiedRole]), 
