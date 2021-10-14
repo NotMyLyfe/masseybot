@@ -1,3 +1,4 @@
+require('dotenv').config();
 import client from '../index';
 import Piscina from 'piscina';
 import path from 'path';
@@ -17,6 +18,6 @@ export default async() => {
                 .finally(() => {serversQuerrying[key] = false});
             }
         }
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        await new Promise(resolve => setTimeout(resolve, Number(process.env.QUERY_TIME)));
     }
 }
