@@ -17,6 +17,6 @@ export default async() => {
                 .finally(() => {serversQuerrying[key] = false});
             }
         }
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 5000));
     }
 }
