@@ -14,9 +14,9 @@ export default async() => {
                 serversQuerrying[key] = true;
                 piscana.run({serverId : key, myId : client.user.id}).then(() => {
                     serversQuerrying[key] = false;
-                }).catch(() => {});
+                }).catch((err) => {console.log(err)});
             }
         }
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 1000));
     }
 }

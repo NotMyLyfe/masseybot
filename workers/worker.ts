@@ -71,12 +71,15 @@ export default async ({serverId, myId} : queryParams) => {
     }
 
     try{
-        const members = (await discordAPI('get', `/guilds/${serverId}/members?limit=1000`)).data as Array<any>;
-        const users = (await discordUsers.find()).filter(user => members.some(memberObj => memberObj.user.id == user.discordId));
+        const members = ((await discordAPI('get', `/guilds/${serverId}/members?limit=1000`)).data as Array<any>).reduce((map, obj) => {
+            map[obj.user.id] = obj.roles as Array<any>;
+            return map;
+        }, {});
+        const users = (await discordUsers.find()).filter(user => user.discordId in members);
 
         for (let user of users){
             try{
-                const userRoles = (await discordAPI('get', `/guilds/${serverId}/members/${user.discordId}`)).data.roles as Array<any>;
+                const userRoles = members[user.discordId];
                 if(userRoles.includes(verifiedRole)) continue;
                 
                 const userHasHigherRole = userRoles.some(obj => obj.position >= highestRole);
