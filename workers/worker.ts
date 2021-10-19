@@ -87,7 +87,9 @@ export default async ({serverId, myId} : queryParams) => {
         discordAPI('patch', `/guilds/${serverId}/members/${user.discordId}`, {
             "roles" : userRoles.concat([verifiedRole]), 
             ...(autoName && canName) && {"nick" : user.name}
-        }, {"Content-Type" : "application/json"});
+        }, {"Content-Type" : "application/json"}).catch(err => {
+            console.log(`Error modifying user ${user.discordId} during background sync on guild ${guild.id}!`);
+        });
         if(autoName && !canName){
             discordAPI('post', `/channels/${systemChannel}/messages`, {content : `User <@${user.discordId}> has a higher role, unable to change nickname.`})
             .catch(err => {

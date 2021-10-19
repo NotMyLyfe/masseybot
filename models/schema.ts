@@ -2,7 +2,6 @@ require('dotenv').config();
 import mongoose from 'mongoose';
 import Piscina from 'piscina';
 
-mongoose.connect(process.env.DB_URL);
 const db = mongoose.connection;
 
 db.on('open', () => {
