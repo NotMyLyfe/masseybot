@@ -13,3 +13,5 @@ Notable features:
     - Prevents spam and automatic verifications from email providers who click all the links in an email
 - And more...
     - Contributions are always welcome!
+  
+License: MIT
