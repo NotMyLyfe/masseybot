@@ -2,7 +2,7 @@
     "compilerOptions": {
         "module" : "commonjs",
         "target": "ESNext",
-        "watch" : true,
+        "watch" : false,
         "esModuleInterop": true
     }
 }
