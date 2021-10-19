@@ -22,7 +22,6 @@ const _paginatedUserList = async (serverId: string) => {
     const QUERY_LIMIT = 1000;
 
     do {
-        let highestID = Number.NEGATIVE_INFINITY;
         const iterd = (await discordAPI({
             method: "GET",
             url: `/guilds/${serverId}/members`,
@@ -34,17 +33,13 @@ const _paginatedUserList = async (serverId: string) => {
         lastReturned = iterd.length;
 
         const iterm = iterd.reduce((map, obj) => {
-            const userIdAsNumber = Number(obj.user.id);
-            if(userIdAsNumber > highestID){
-                highestID = userIdAsNumber;
-            }
             map[obj.user.id] = obj.roles as Array<any>;
             return map;
         }, {});
 
         Object.assign(users, iterm);
 
-        lastUser = highestID;
+        lastUser = iterd.at(-1).user.id;
     }while (lastReturned == QUERY_LIMIT);
 
     return users;
