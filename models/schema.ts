@@ -13,14 +13,14 @@ interface userSchema extends mongoose.Document{
     name: string;
     discordId: string;
     email: string;
-};
+}
 
 interface serverSchema extends mongoose.Document{
     serverId: string;
     verifiedRole: string;
     administratorRoles: Array<string>;
     autoName: boolean;
-};
+}
 
 const discordUsers = mongoose.model<userSchema>('DiscordUser', new mongoose.Schema<userSchema>({
     name: {
