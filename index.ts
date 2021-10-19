@@ -1,6 +1,5 @@
 require('dotenv').config();
 import fs from 'fs';
-import mongoose from "mongoose";
 
 import { discordServers, discordUsers } from './models/schema';
 import query from './models/query';
@@ -13,12 +12,6 @@ declare module "discord.js"{
         commands: Collection<string, any>
     }
 }
-mongoose.connect(process.env.DB_URL).then(() => {
-    console.log("Successfully established connection to MongoDB.");
-}).catch((err) => {
-    console.log("Unable to connect to MongoDB.");
-    process.exit(1);
-});
 
 const client = new Client({
     intents: [Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES,"GUILD_MEMBERS"]
