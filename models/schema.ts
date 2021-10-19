@@ -2,15 +2,12 @@ require('dotenv').config();
 import mongoose from 'mongoose';
 import Piscina from 'piscina';
 
-mongoose.connect(process.env.DB_URL);
-const db = mongoose.connection;
-
-db.on('open', () => {
+mongoose.connect(process.env.DB_URL).then(() => {
     if(!Piscina.isWorkerThread)
         console.log("Connected to MongoDB");
-});
-
-db.on('error', err => console.log(err));
+}).catch((err) => {
+    console.log("Error connecting to MongoDB!", err);
+})
 
 interface userSchema extends mongoose.Document{
     name: string;
