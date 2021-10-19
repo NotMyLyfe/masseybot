@@ -1,23 +1,55 @@
 require('dotenv').config();
 import {discordServers, discordUsers} from '../models/schema';
-import axios, { Method } from 'axios';
+import axios from 'axios';
 
-const discordAPI = async (method : Method, endpoint : string, data? : any, headers? : any) => {
-    return axios({
-        method : method,
-        url : `https://discord.com/api/${process.env.API}${endpoint}`,
-        headers:{
-            'Authorization' : `Bot ${process.env.TOKEN}`,
-            ...headers
-        },
-        ...(data) && {data : data}
-    });
-}
+const discordAPI = axios.create({
+    baseURL: `https://discord.com/api/${process.env.API}`,
+    headers: {
+        'Authorization': `Bot ${process.env.TOKEN}`
+    }
+});
 
 interface queryParams {
     serverId : string,
     myId : string
 }
+
+const _paginatedUserList = async (serverId: string) => {
+    const users = {} as Record<string, any>;
+    let lastReturned = 0;
+    let lastUser = 0;
+
+    const QUERY_LIMIT = 1000;
+
+    do {
+        let highestID = Number.NEGATIVE_INFINITY;
+        const iterd = (await discordAPI({
+            method: "GET",
+            url: `/guilds/${serverId}/members`,
+            params: {
+                limit: QUERY_LIMIT,
+                after: lastUser
+            }
+        })).data as Array<any>;
+        lastReturned = iterd.length;
+
+        const iterm = iterd.reduce((map, obj) => {
+            const userIdAsNumber = Number(obj.user.id);
+            if(userIdAsNumber > highestID){
+                highestID = userIdAsNumber;
+            }
+            map[obj.user.id] = obj.roles as Array<any>;
+            return map;
+        }, {});
+
+        Object.assign(users, iterm);
+
+        lastUser = highestID;
+    }while (lastReturned == QUERY_LIMIT);
+
+    return users;
+}
+
 
 export default async ({serverId, myId} : queryParams) => {
     const serverDetails = await discordServers.findOne({'serverId' : serverId});
@@ -36,7 +68,7 @@ export default async ({serverId, myId} : queryParams) => {
     if(verifiedRole == "-1") return;
 
     const autoName = serverDetails.autoName;
-    const guild = (await discordAPI('get', `/guilds/${serverId}`)).data;
+    const guild = (await discordAPI(`/guilds/${serverId}`)).data;
 
     
     const roles = (guild.roles as Array<any>).reduce((map, obj) => {
@@ -49,7 +81,13 @@ export default async ({serverId, myId} : queryParams) => {
     const systemChannel = guild["system_channel_id"];
     
     if(!role){
-        discordAPI('post', `/channels/${systemChannel}/messages`, {content : "Verified role has been removed from the server, please update verified role."})
+        discordAPI({
+            method: "POST",
+            url: `/channels/${systemChannel}/messages`,
+            data: {
+                content : "Verified role has been removed from the server, please update verified role."
+            }
+        })
         .catch(err => {
             console.log(`Unable to send message to guild ${guild.id}, possibly missing perms to send commands in the guild system channel?`);
         });
@@ -57,10 +95,7 @@ export default async ({serverId, myId} : queryParams) => {
         return;
     }
     
-    const members = ((await discordAPI('get', `/guilds/${serverId}/members?limit=1000`)).data as Array<any>).reduce((map, obj) => {
-        map[obj.user.id] = obj.roles as Array<any>;
-        return map;
-    }, {});
+    const members = await _paginatedUserList(serverId);
 
     let highestRole = 0;
     members[myId].forEach(val => {
@@ -69,7 +104,13 @@ export default async ({serverId, myId} : queryParams) => {
     });
 
     if(highestRole <= role.position){
-        discordAPI('post', `/channels/${systemChannel}/messages`, {content : "Verified role is equal to or higher than the bot's highest role, please update verified role."})
+        discordAPI({
+            method: "post",
+            url: `/channels/${systemChannel}/messages`,
+            data: {
+                content : "Verified role is equal to or higher than the bot's highest role, please update verified role."
+            }
+        })
         .catch(err => {
             console.log(`Unable to send message to guild ${guild.id}, possibly missing perms to send commands in the guild system channel?`);
         });
@@ -84,14 +125,28 @@ export default async ({serverId, myId} : queryParams) => {
 
         const userHasHigherRole = userRoles.some(roleId => roles[roleId].position >= highestRole);
         const canName = guild.owner_id != user.discordId && !userHasHigherRole;
-        discordAPI('patch', `/guilds/${serverId}/members/${user.discordId}`, {
-            "roles" : userRoles.concat([verifiedRole]), 
-            ...(autoName && canName) && {"nick" : user.name}
-        }, {"Content-Type" : "application/json"}).catch(err => {
+
+        discordAPI({
+            method: "patch",
+            url: `/guilds/${serverId}/members/${user.discordId}`,
+            headers: {
+                "Content-Type" : "application/json"
+            },
+            data: {
+                "roles" : userRoles.concat([verifiedRole]),
+                ...(autoName && canName) && {"nick" : user.name}
+            }
+        }).catch(err => {
             console.log(`Error modifying user ${user.discordId} during background sync on guild ${guild.id}!`);
         });
         if(autoName && !canName){
-            discordAPI('post', `/channels/${systemChannel}/messages`, {content : `User <@${user.discordId}> has a higher role, unable to change nickname.`})
+            discordAPI({
+                method: "post",
+                url: `/channels/${systemChannel}/messages`,
+                data: {
+                    content : `User <@${user.discordId}> has a higher role, unable to change nickname.`
+                }
+            })
             .catch(err => {
                 console.log(`Unable to send message to guild ${guild.id}, possibly missing perms to send commands in the guild system channel?`);
             });
