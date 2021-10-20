@@ -19,6 +19,10 @@ module.exports = {
             await interaction.editReply({content: "You do not have permission to access this command."});
             return;
         }
+        if((interaction.options.getRole('role') as Role).rawPosition == 0){
+            await interaction.editReply({content : "Role cannot be set to everyone"});
+            return;
+        }
         if(interaction.guild.me.roles.highest.comparePositionTo(interaction.options.getRole('role') as Role) <= 0){
             await interaction.editReply({content: "Role must be lower than bot's highest role"});
             return;
