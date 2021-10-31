@@ -38,8 +38,8 @@ const _paginatedUserList = async (serverId: string) => {
         }, {});
 
         Object.assign(users, iterm);
-
-        lastUser = iterd.at(-1).user.id;
+        if(iterd.length > 0)
+            lastUser = iterd.at(-1).user.id;
     }while (lastReturned == QUERY_LIMIT);
 
     return users;
