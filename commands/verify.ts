@@ -24,6 +24,11 @@ module.exports = {
             interaction.editReply("Invalid student ID, please enter a valid student ID");
             return;
         }
+        const email = `${idString}@student.publicboard.ca`;
+        if(await discordUsers.exists({email : email})){
+            interaction.editReply("This student ID has already been used! If you no longer have access to the account you initially verified yourself with, or require more than one account, please contact an admin.");
+            return;
+        }
         const name = interaction.options.getString('name');
         if(!interaction.options.getBoolean('single') && name.split(' ').length < 2){
             interaction.editReply("Did you forget to include both your first and last name? If your name doesn't include a last name, set the 'single' property to true");
@@ -34,7 +39,6 @@ module.exports = {
             studentNumber: idString,
             name: name
         }, process.env.JWT_SECRET);
-        const email = `${idString}@student.publicboard.ca`;
         sendmail(email, token, name).then(async () => {
             await interaction.editReply(`We have sent an email to ${idString}@student.publicboard.ca. Please check your Microsoft365 email and click the link to complete verification. If you do not see it in your Inbox, **check your Junk Email folder** and report it as not junk!`)
         })

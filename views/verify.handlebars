@@ -19,7 +19,7 @@
                 <input type="submit"value="Verify" class="btn btn-primary">
             </form>
         {{else if error}}
-            <h6 style="color: red;">Invalid token! Contact an admin!</h6>
+            <h6 style="color: red;">{{error}}</h6>
         {{/if}}
     </div>
 

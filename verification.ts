@@ -54,17 +54,24 @@ app.post('/verify/:id', async(req, res) => {
                 let discordId = decoded.discordId;
                 let studentNumber = decoded.studentNumber;
                 let fullname = decoded.name;
-                await discordUsers.findOneAndUpdate({discordId : discordId}, 
-                    {   
-                        name : fullname,
-                        discordId: discordId,
-                        email: `${studentNumber}@student.publicboard.ca`
-                    },
-                    { new : true, upsert: true});
+                if(await discordUsers.exists({email : `${studentNumber}@student.publicboard.ca`})){
                     res.render('verify', {
-                        success: true,
-                        redirect : process.env.REDIRECT_URL
+                        error: "Student ID already being used! Please contact an admin!"
                     });
+                }
+                else{
+                    await discordUsers.findOneAndUpdate({discordId : discordId}, 
+                        {   
+                            name : fullname,
+                            discordId: discordId,
+                            email: `${studentNumber}@student.publicboard.ca`
+                        },
+                        { new : true, upsert: true});
+                        res.render('verify', {
+                            success: true,
+                            redirect : process.env.REDIRECT_URL
+                        });
+                }
             }
             catch(err){
                 res.render('verify', {
