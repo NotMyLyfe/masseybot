@@ -19,15 +19,20 @@ module.exports = {
             await interaction.editReply({content: "You do not have permission to access this command."});
             return;
         }
-        if((interaction.options.getRole('role') as Role).rawPosition == 0){
+        const role = interaction.options.getRole('role') as Role;
+        if(role.rawPosition == 0){
             await interaction.editReply({content : "Role cannot be set to everyone"});
             return;
         }
-        if(interaction.guild.me.roles.highest.comparePositionTo(interaction.options.getRole('role') as Role) <= 0){
+        if(interaction.guild.me.roles.highest.comparePositionTo(role) <= 0){
             await interaction.editReply({content: "Role must be lower than bot's highest role"});
             return;
         }
-        await discordServers.updateOne({serverId : interaction.guildId}, {verifiedRole : interaction.options.getRole('role').id});
+        if(interaction.guild.ownerId != member.id && member.roles.highest.comparePositionTo(role) <= 0){
+            await interaction.editReply({content: "Unable to set verified role higher than or equal to your highest role."});
+            return;
+        }
+        await discordServers.updateOne({serverId : interaction.guildId}, {verifiedRole : role.id});
         await interaction.editReply({"content" : "Alright, verified role has been updated."});
     }
 }

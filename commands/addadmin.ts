@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction, GuildMember, Permissions } from "discord.js";
+import { CommandInteraction, GuildMember, Permissions, Role } from "discord.js";
 import { discordServers } from "../models/schema";
 
 module.exports = {
@@ -19,7 +19,12 @@ module.exports = {
             await interaction.editReply({content: "You do not have permission to access this command."});
             return;
         }
-        await discordServers.updateOne({serverId : interaction.guildId}, {$addToSet : {administratorRoles: interaction.options.getRole('admin').id}});
+        const role = interaction.options.getRole('admin') as Role;
+        if(interaction.guild.ownerId != member.id && member.roles.highest.comparePositionTo(role) <= 0){
+            await interaction.editReply({content: "Unable to add role higher than or equal to your highest role."});
+            return;
+        }
+        await discordServers.updateOne({serverId : interaction.guildId}, {$addToSet : {administratorRoles: role.id}});
         await interaction.editReply({"content" : "Alright, roles have been updated."});
     }
 

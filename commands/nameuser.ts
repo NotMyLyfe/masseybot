@@ -26,14 +26,18 @@ module.exports = {
                 await interaction.editReply({"content" : `User <@${userId}> is the server owner, unable to change nickname.`});
                 return;
             }
+            const userGuild = await interaction.guild.members.fetch(userId);
+            if(interaction.guild.ownerId != member.id && member.id != userId && member.roles.highest.comparePositionTo(userGuild.roles.highest) <= 0){
+                await interaction.editReply({"content" : `User <@${userId}> has a role higher than or equal to your highest role, unable to change nickname.`});
+                return;
+            }
+            if(interaction.guild.me.roles.highest.comparePositionTo(userGuild.roles.highest) <= 0){
+                await interaction.editReply({"content" : `User <@${userId}> has a higher role, unable to change nickname.`});
+                return;
+            }
             const userInfo = (await discordUsers.find()).find(userQ => userQ.discordId == userId);
             if(!userInfo){
                 await interaction.editReply({"content" : "User is not verified, unable to update name"});
-                return;
-            }
-            const userGuild = await interaction.guild.members.fetch(userId);
-            if(interaction.guild.me.roles.highest.comparePositionTo(userGuild.roles.highest) <= 0){
-                await interaction.editReply({"content" : `User <@${userId}> has a higher role, unable to change nickname.`});
                 return;
             }
             await userGuild.setNickname(interaction.options.getBoolean('reset') ? null : userInfo.name);
