@@ -2,6 +2,7 @@ require('dotenv').config();
 import client from '../index';
 import Piscina from 'piscina';
 import path from 'path';
+import { Permissions } from 'discord.js';
 
 export default async() => {
     if (Piscina.isWorkerThread) return;
@@ -13,7 +14,7 @@ export default async() => {
         for(let [key, val] of client.guilds.cache){
             if(!serversQuerrying[key]){
                 serversQuerrying[key] = true;
-                piscana.run({serverId : key, myId : client.user.id})
+                piscana.run({serverId : key, myId : client.user.id, canBan: val.me.permissions.has(Permissions.FLAGS.BAN_MEMBERS) || val.me.permissions.has(Permissions.FLAGS.ADMINISTRATOR)})
                 .catch((err) => {console.log(err)})
                 .finally(() => {serversQuerrying[key] = false});
             }

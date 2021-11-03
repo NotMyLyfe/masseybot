@@ -3,7 +3,7 @@ import fs from 'fs';
 
 import { discordServers, discordUsers } from './models/schema';
 import query from './models/query';
-import { Client, Collection, Intents, Guild } from 'discord.js';
+import { Client, Collection, Intents, Guild, Permissions } from 'discord.js';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 
@@ -32,8 +32,8 @@ const rest = new REST({version: '9'}).setToken(process.env.TOKEN);
 (async () => {
     try {
         await rest.put(
-            //Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
-            Routes.applicationCommands(process.env.CLIENT_ID),
+            Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
+            //Routes.applicationCommands(process.env.CLIENT_ID),
             { body: commands },
         );
     }
@@ -59,7 +59,20 @@ client.on('guildMemberAdd', async member=>{
     const userInfo = await discordUsers.findOne({discordId : member.id});
     if(userInfo){
         const serverInfo = await discordServers.findOne({serverId : member.guild.id});
-        if(serverInfo.verifiedRole == "-1"){
+        if(serverInfo.bannedUsers.includes(userInfo.email)){
+            await member.send(`Your student ID associated with your Discord account is currently banned from ${member.guild.name}. Please contact an admin for more help.`)
+            .catch(err => {
+                console.log(`Unable to send message to user ${member.id}, member possibly has private messages disabled?`);
+                console.log(err);
+            });
+            if(member.guild.me.permissions.has(Permissions.FLAGS.ADMINISTRATOR) || member.guild.me.permissions.has(Permissions.FLAGS.BAN_MEMBERS)){
+                member.ban({
+                    days: 7,
+                    reason: "Student ID blacklisted"
+                });
+            }
+        }
+        else if(serverInfo.verifiedRole == "-1"){
             member.send(`Welcome to ${member.guild.name}! A verified role has yet to be selected on this server, but since you've already verified yourself, you will be automatically verified once a role has been selected!`)
             .catch(err => {
                 console.log(`Unable to send message to user ${member.id}, member possibly has private messages disabled?`);

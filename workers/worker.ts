@@ -11,7 +11,8 @@ const discordAPI = axios.create({
 
 interface queryParams {
     serverId : string,
-    myId : string
+    myId : string,
+    canBan : boolean
 }
 
 const _paginatedUserList = async (serverId: string) => {
@@ -46,15 +47,15 @@ const _paginatedUserList = async (serverId: string) => {
 }
 
 
-export default async ({serverId, myId} : queryParams) => {
+export default async ({serverId, myId, canBan} : queryParams) => {
     const serverDetails = await discordServers.findOne({'serverId' : serverId});
     if(!serverDetails){
         await discordServers.create({
             serverId: serverId,
             verifiedRole: "-1",
-            verificationChannels: [],
             administratorRoles: [],
-            autoName: true
+            autoName: true,
+            bannedUsers: []
         });
         return;
     }
@@ -112,13 +113,29 @@ export default async ({serverId, myId} : queryParams) => {
         await discordServers.updateOne({serverId : guild.id}, {verifiedRole: "-1"});
         return;
     }
-        const users = (await discordUsers.find()).filter(user => user.discordId in members);
+    
+    const users = (await discordUsers.find()).filter(user => user.discordId in members);
 
     for (let user of users){
         const userRoles = members[user.discordId];
         if(userRoles.includes(verifiedRole)) continue;
 
         const userHasHigherRole = userRoles.some(roleId => roles[roleId].position >= highestRole);
+        if(serverDetails.bannedUsers.includes(user.email)){
+            if(canBan && !userHasHigherRole){
+                discordAPI({
+                    method: "put",
+                    url: `/guilds/${serverId}/bans/${user.discordId}`,
+                    data:{
+                        "delete_message_days": 7,
+                        "reason" : "Student ID blacklisted"
+                    }
+                }).catch(err => {
+                    console.log(`Error banning user ${user.discordId}!`);
+                });
+            }
+            continue;
+        }
         const canName = guild.owner_id != user.discordId && !userHasHigherRole;
 
         discordAPI({

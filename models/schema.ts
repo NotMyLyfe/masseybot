@@ -20,6 +20,7 @@ interface serverSchema extends mongoose.Document{
     verifiedRole: string;
     administratorRoles: Array<string>;
     autoName: boolean;
+    bannedUsers : Array<string>;
 }
 
 const discordUsers = mongoose.model<userSchema>('DiscordUser', new mongoose.Schema<userSchema>({
@@ -52,6 +53,10 @@ const discordServers = mongoose.model<serverSchema>('DiscordServer', new mongoos
     },
     autoName : {
         type: Boolean,
+        required: true
+    },
+    bannedUsers : {
+        type : [String], 
         required: true
     }
 }));
