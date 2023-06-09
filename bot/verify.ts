@@ -1,5 +1,5 @@
 require('dotenv').config();
-import {discordServers, discordUsers} from '../models/schema';
+import {discordServers, discordUsers} from './models/schema';
 import axios from 'axios';
 
 const discordAPI = axios.create({

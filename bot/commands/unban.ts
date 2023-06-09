@@ -4,9 +4,9 @@ import { discordServers } from "../models/schema";
 
 module.exports = {
     data : new SlashCommandBuilder()
-        .setName('autoname')
-        .setDescription("Sets whether or not users should be renamed to their full name upon being verified")
-        .addBooleanOption(option => option.setName('boolean').setDescription('True or False?').setRequired(true)),
+        .setName('unban')
+        .setDescription("Unban student ID associated with user from this server")
+        .addIntegerOption(option => option.setName('id').setDescription('Student ID you would like to unban').setRequired(true)),
     async execute(interaction: CommandInteraction){
         if(!interaction.inGuild()){
             await (interaction as CommandInteraction).reply("Unfortunately, this command cannot be used in a direct message.");
@@ -19,8 +19,14 @@ module.exports = {
             await interaction.editReply({content: "You do not have permission to access this command."});
             return;
         }
-        await discordServers.updateOne({serverId : interaction.guildId}, {autoName: interaction.options.getBoolean('boolean')});
-        await interaction.editReply({"content" : "Alright, autoname has been updated."});
+        const idString = interaction.options.getInteger('id').toString();
+        if(idString.length != 8){
+            interaction.editReply("Invalid student ID, please enter a valid student ID");
+            return;
+        }
+        const email = `${idString}@student.publicboard.ca`;
+        await discordServers.updateOne({serverId : interaction.guildId}, {$pull : {bannedUsers: email}});
+        await interaction.editReply({content: `Alright, student ID ${idString} has been unbanned`});
     }
 
 }

@@ -1,12 +1,12 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction, GuildMember, Permissions, Role } from "discord.js";
+import { CommandInteraction, GuildMember, Permissions } from "discord.js";
 import { discordServers } from "../models/schema";
 
 module.exports = {
     data : new SlashCommandBuilder()
-        .setName('addadmin')
-        .setDescription("Adds an administrator role to this bot")
-        .addRoleOption(option => option.setName('admin').setDescription('New administrator role').setRequired(true)),
+        .setName('autoname')
+        .setDescription("Sets whether or not users should be renamed to their full name upon being verified")
+        .addBooleanOption(option => option.setName('boolean').setDescription('True or False?').setRequired(true)),
     async execute(interaction: CommandInteraction){
         if(!interaction.inGuild()){
             await (interaction as CommandInteraction).reply("Unfortunately, this command cannot be used in a direct message.");
@@ -19,13 +19,8 @@ module.exports = {
             await interaction.editReply({content: "You do not have permission to access this command."});
             return;
         }
-        const role = interaction.options.getRole('admin') as Role;
-        if(interaction.guild.ownerId != member.id && member.roles.highest.comparePositionTo(role) <= 0){
-            await interaction.editReply({content: "Unable to add role higher than or equal to your highest role."});
-            return;
-        }
-        await discordServers.updateOne({serverId : interaction.guildId}, {$addToSet : {administratorRoles: role.id}});
-        await interaction.editReply({"content" : "Alright, roles have been updated."});
+        await discordServers.updateOne({serverId : interaction.guildId}, {autoName: interaction.options.getBoolean('boolean')});
+        await interaction.editReply({"content" : "Alright, autoname has been updated."});
     }
 
 }

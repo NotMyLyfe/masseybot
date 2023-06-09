@@ -1,5 +1,5 @@
 require('dotenv').config();
-import client from '../index';
+import client from '../bot';
 import Piscina from 'piscina';
 import path from 'path';
 import { Permissions } from 'discord.js';

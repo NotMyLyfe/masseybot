@@ -1,12 +1,12 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction, GuildMember, Permissions } from "discord.js";
+import { CommandInteraction, GuildMember, Permissions, Role } from "discord.js";
 import { discordServers } from "../models/schema";
 
 module.exports = {
     data : new SlashCommandBuilder()
-        .setName('unban')
-        .setDescription("Unban student ID associated with user from this server")
-        .addIntegerOption(option => option.setName('id').setDescription('Student ID you would like to unban').setRequired(true)),
+        .setName('addadmin')
+        .setDescription("Adds an administrator role to this bot")
+        .addRoleOption(option => option.setName('admin').setDescription('New administrator role').setRequired(true)),
     async execute(interaction: CommandInteraction){
         if(!interaction.inGuild()){
             await (interaction as CommandInteraction).reply("Unfortunately, this command cannot be used in a direct message.");
@@ -19,14 +19,13 @@ module.exports = {
             await interaction.editReply({content: "You do not have permission to access this command."});
             return;
         }
-        const idString = interaction.options.getInteger('id').toString();
-        if(idString.length != 8){
-            interaction.editReply("Invalid student ID, please enter a valid student ID");
+        const role = interaction.options.getRole('admin') as Role;
+        if(interaction.guild.ownerId != member.id && member.roles.highest.comparePositionTo(role) <= 0){
+            await interaction.editReply({content: "Unable to add role higher than or equal to your highest role."});
             return;
         }
-        const email = `${idString}@student.publicboard.ca`;
-        await discordServers.updateOne({serverId : interaction.guildId}, {$pull : {bannedUsers: email}});
-        await interaction.editReply({content: `Alright, student ID ${idString} has been unbanned`});
+        await discordServers.updateOne({serverId : interaction.guildId}, {$addToSet : {administratorRoles: role.id}});
+        await interaction.editReply({"content" : "Alright, roles have been updated."});
     }
 
 }

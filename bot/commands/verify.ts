@@ -1,6 +1,4 @@
 require('dotenv').config();
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction } from "discord.js";
 import { discordUsers } from "../models/schema";
 import jwt from 'jsonwebtoken';
 import sendmail from '../mail/sendmail';
