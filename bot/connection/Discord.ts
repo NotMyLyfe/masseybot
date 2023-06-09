@@ -27,7 +27,7 @@ export default class Discord{
     }
 
     private receiveMessage(message : WebSocket.MessageEvent) : void{
-        new Message(message.data);
+        const newMessage = new Message(message.data);
     }
 
     private handleMessage() : void{
