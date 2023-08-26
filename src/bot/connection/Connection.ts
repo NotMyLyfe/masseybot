@@ -1,7 +1,7 @@
 import WebSocket, { OPEN } from "ws";
 import { EventEmitter } from "events";
 import Message from "./Message";
-import { MessageJson, WebsocketOptions } from "../../ts/interfaces";
+import { MessageJson, WebsocketOptions, Ready } from "../../ts/interfaces";
 import { EventCloseCode, EventName, Intent, Opcode } from "../../ts/enums";
 
 export default class Connection extends EventEmitter{
@@ -104,7 +104,10 @@ export default class Connection extends EventEmitter{
     private handleDispatch(message : Message) : void{
         switch (message.name) {
             case EventName.READY:
-                
+                const ready = message.data as Ready;
+                this.resume_url = ready.resume_gateway_url;
+                this.emit("ready", ready);
+                break;
             default:
                 console.log(`Unknown event: ${message.name}`);
                 break;
