@@ -1,8 +1,8 @@
-import WebSocket from "ws";
+import WebSocket, { OPEN } from "ws";
 import { EventEmitter } from "events";
 import Message from "./Message";
-import { MessageJson, PresenceUpdate, WebsocketOptions } from "../../ts/interfaces";
-import { Intents, Opcode } from "../../ts/enums";
+import { MessageJson, WebsocketOptions } from "../../ts/interfaces";
+import { EventCloseCode, EventName, Intent, Opcode } from "../../ts/enums";
 
 export default class Connection extends EventEmitter{
     public static readonly GATEWAY_URL = new URL("wss://gateway.discord.gg/gateway/bot");
@@ -29,7 +29,7 @@ export default class Connection extends EventEmitter{
         return url.toString();
     }
 
-    constructor(token : string, intents : Intents[], options : WebsocketOptions){
+    constructor(token : string, intents : Intent[], options : WebsocketOptions){
         super(EventEmitter);
         this.ws = new WebSocket(Connection.urlMaker(options));
         this.resume = false;
@@ -102,7 +102,13 @@ export default class Connection extends EventEmitter{
     }
 
     private handleDispatch(message : Message) : void{
-        console.log(message.name);
+        switch (message.name) {
+            case EventName.READY:
+                
+            default:
+                console.log(`Unknown event: ${message.name}`);
+                break;
+        }
     }
 
     private errorHandler(error : WebSocket.ErrorEvent) : void{
@@ -110,6 +116,6 @@ export default class Connection extends EventEmitter{
     }
 
     public async send(message : Message){
-        this.ws.send(message.toString());
+        if(this.ws.readyState === OPEN) this.ws.send(message.toString());
     }
 }

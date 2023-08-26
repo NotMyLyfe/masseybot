@@ -1,5 +1,4 @@
-import { Data } from "ws";
-import { Intents, Opcode } from "../../ts/enums";
+import { Opcode } from "../../ts/enums";
 import { Identify, MessageJson } from "../../ts/interfaces";
 
 export default class Message{

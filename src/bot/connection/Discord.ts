@@ -3,7 +3,7 @@ import { EventEmitter } from 'node:events';
 import debounce from "lodash.debounce";
 import Message from "./Message";
 import Connection from "./Connection";
-import { Intents, Opcode } from "../../ts/enums";
+import { Intent, Opcode } from "../../ts/enums";
 import { WebsocketOptions } from "../../ts/interfaces";
 
 export default class Discord extends EventEmitter{
@@ -21,7 +21,7 @@ export default class Discord extends EventEmitter{
         super(EventEmitter);
         this.token = token;
         this.wsOptions = options;
-        this.connection = new Connection(token, [Intents.GUILDS, Intents.GUILD_MESSAGES, Intents.DIRECT_MESSAGES, Intents.GUILD_MEMBERS], this.wsOptions);
+        this.connection = new Connection(token, [Intent.GUILDS, Intent.GUILD_MESSAGES, Intent.DIRECT_MESSAGES, Intent.GUILD_MEMBERS], this.wsOptions);
     }
 }
 
