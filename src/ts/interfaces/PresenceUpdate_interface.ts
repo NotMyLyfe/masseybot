@@ -1,5 +1,5 @@
 import { Activity } from "./Activity_interface";
-import { Status } from "../enums/Status_enums";
+import { Status } from "../enums/Status_enum";
 
 export interface PresenceUpdate {
     since : number,

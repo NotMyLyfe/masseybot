@@ -1,8 +1,8 @@
-import { ActivityTypes } from "../enums/ActivityTypes_enums";
+import { ActivityType } from "../enums/ActivityType_enum";
 
 export interface Activity{
     name : string,
-    type : ActivityTypes,
+    type : ActivityType,
     url? : string,
     created_at : number,
     timestamps? : ActivityTimestamp,

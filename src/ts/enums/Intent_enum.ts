@@ -1,4 +1,4 @@
-export enum Intents{
+export enum Intent{
     GUILDS = 1 << 0,
     GUILD_MEMBERS = 1 << 1,
     GUILD_MODERATION = 1 << 2,

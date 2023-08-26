@@ -1,4 +1,4 @@
-export const enum ActivityTypes{
+export const enum ActivityType{
     Game = 0,
     Streaming = 1,
     Listening = 2,
