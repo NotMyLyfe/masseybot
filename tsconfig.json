@@ -5,5 +5,5 @@
         "esModuleInterop": true,
     },
     "include" : ["src/**/*"],
-    "files": ["types/bot_types.d.ts", "types/connection_types.d.ts"]
+    "files": ["src/common/types.ts"]
 }

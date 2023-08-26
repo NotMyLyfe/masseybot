@@ -1,29 +1,14 @@
 import { Data } from "ws";
-
-export enum OPCODE{
-    dispatch = 0,
-    heartbeat = 1,
-    identify = 2,
-    presence_update = 3,
-    voice_state_update = 4,
-    resume = 6,
-    reconnect = 7,
-    req_guild_mem = 8,
-    inv_session = 9,
-    hello = 10,
-    heartbeat_ack = 11
-}
-
-export interface MessageJSON{
-    op: number,
-    d?: any,
-    s?: number,
-    t?: string
-}
+import { Intents, Opcode } from "../../ts/enums";
+import { Identify, MessageJson } from "../../ts/interfaces";
 
 export default class Message{
     public static heartbeat(d? : any){
-        return new Message({op : OPCODE.heartbeat, d : d ? d : null})
+        return new Message({op : Opcode.heartbeat, d : d ? d : null})
+    }
+
+    public static identify(id : Identify){
+        return new Message({op : Opcode.identify, d : id})
     }
 
     private _op: number;
@@ -47,14 +32,14 @@ export default class Message{
         return this._name;
     }
     
-    constructor(message : MessageJSON){
+    constructor(message : MessageJson){
         this._op = message.op;
         this._data = message.d;
         this._sequence = message.s;
         this._name = message.t;
     }
 
-    public jsonify() : MessageJSON{
+    public jsonify() : MessageJson{
         return { op: this._op, 
                  ...(this._data !== undefined && {d : this._data}),
                  ...(this._sequence && {s : this._sequence}),

@@ -1,35 +1,19 @@
 import WebSocket from "ws";
 import { EventEmitter } from "events";
-import Message, { MessageJSON, OPCODE } from "./Message";
-
-enum Intents{
-    GUILDS = 1 << 0,
-    GUILD_MEMBERS = 1 << 1,
-    GUILD_MODERATION = 1 << 2,
-    GUILD_EMOJIS_AND_STICKERS = 1 << 3,
-    GUILD_INTEGRATIONS  = 1 << 4,
-    GUILD_WEBHOOKS = 1 << 5,
-    GUILD_INVITES = 1 << 6,
-    GUILD_VOICE_STATES = 1 << 7,
-    GUILD_PRESENCES = 1 << 8,
-    GUILD_MESSAGES = 1 << 9,
-    GUILD_MESSAGE_REACTIONS = 1 << 10,
-    GUILD_MESSAGE_TYPING = 1 << 11,
-    DIRECT_MESSAGES = 1 << 12,
-    DIRECT_MESSAGE_REACTION = 1 << 13,
-    DIRECT_MESSAGE_TYPING = 1 << 14,
-    MESSAGE_CONTENT = 1 << 15,
-    GUILD_SCHEDULE_EVENTS = 1 << 16,
-    AUTO_MODERATION_CONFIGURATION = 1 << 20,
-    AUTO_MODERATION_EXECUTION = 1 << 21
-}
+import Message from "./Message";
+import { MessageJson, PresenceUpdate, WebsocketOptions } from "../../ts/interfaces";
+import { Intents, Opcode } from "../../ts/enums";
 
 export default class Connection extends EventEmitter{
     public static readonly GATEWAY_URL = new URL("wss://gateway.discord.gg/gateway/bot");
+    
     private ws : WebSocket;
     private resume : boolean;
     private resume_url : string;
     private seq : number;
+
+    private token : string;
+    private intents : number;
 
     private heartbeat : {
         pulse : number,
@@ -37,7 +21,7 @@ export default class Connection extends EventEmitter{
         lastAck : Date
     }
 
-    private static urlMaker(options : DiscordWSOptions) : string{
+    private static urlMaker(options : WebsocketOptions) : string{
         const url = this.GATEWAY_URL;
         for(let [key, values] of Object.entries(options)){
             url.searchParams.append(key, values);
@@ -45,10 +29,14 @@ export default class Connection extends EventEmitter{
         return url.toString();
     }
 
-    constructor(options : DiscordWSOptions){
+    constructor(token : string, intents : Intents[], options : WebsocketOptions){
         super(EventEmitter);
         this.ws = new WebSocket(Connection.urlMaker(options));
         this.resume = false;
+
+        this.token = token;
+        this.intents = intents.reduce((a, b) => a + b, 0);
+
         this.ws.on("open", () =>{
             this.ws.addEventListener("message", (message) => {
                 this.receiveMessage(message);});
@@ -60,22 +48,20 @@ export default class Connection extends EventEmitter{
         });
     }
 
-    public login(token : string, intents? : Intents[]){
-        let intentVal = intents ? intents.reduce((a, b) => a + b, 0) : 0;
-
-    }
-
     private receiveMessage(message : WebSocket.MessageEvent) : void{
-        const newMessage = new Message(JSON.parse(message.data.toString()) as MessageJSON);
+        const newMessage = new Message(JSON.parse(message.data.toString()) as MessageJson);
         this.handleMessage(newMessage);
     }
 
     private handleMessage(message : Message) : void{
         switch(message.op){
-            case OPCODE.hello:
+            case Opcode.dispatch:
+                this.handleDispatch(message);
+                break;
+            case Opcode.hello:
                 this.helloEvent(message);
                 break;
-            case OPCODE.heartbeat_ack:
+            case Opcode.heartbeat_ack:
                 this.heartbeat.lastAck = new Date();
                 break;
             default:
@@ -84,6 +70,20 @@ export default class Connection extends EventEmitter{
         }
     }
     
+    private login(){
+        const identify = Message.identify({
+            token : this.token,
+            properties : {
+                os: process.platform,
+                browser : "MasseyBot",
+                device : "MasseyBot"
+            },
+            intents : this.intents
+        });
+
+        this.send(identify);
+    }
+
     private helloEvent(message : Message) {
         this.heartbeat = {
             pulse : message.data.heartbeat_interval,
@@ -91,13 +91,18 @@ export default class Connection extends EventEmitter{
             lastAck : new Date(0)
         };
         this.heartbeatLoop();
+        this.login();
     }
 
-    private async heartbeatLoop(){
+    private heartbeatLoop(){
         setInterval(() => {
             this.heartbeat.lastSend = new Date();
             this.send(Message.heartbeat(this.seq));
         }, this.heartbeat.pulse);
+    }
+
+    private handleDispatch(message : Message) : void{
+        console.log(message.name);
     }
 
     private errorHandler(error : WebSocket.ErrorEvent) : void{
