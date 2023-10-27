@@ -4,6 +4,5 @@
         "target": "ESNext",
         "esModuleInterop": true,
     },
-    "include" : ["src/**/*"],
-    "files": ["src/common/types.ts"]
+    "include": ["src/**/*"]
 }

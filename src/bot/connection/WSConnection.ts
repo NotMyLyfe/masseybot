@@ -1,15 +1,25 @@
 import WebSocket, { OPEN } from "ws";
 import { EventEmitter } from "events";
 import Message from "./Message";
-import { MessageJson, WebsocketOptions, Ready } from "../../ts/interfaces";
+import { MessageJson, WebsocketOptions, Ready, User, Application } from "../../ts/interfaces";
 import { EventCloseCode, EventName, Intent, Opcode } from "../../ts/enums";
 
-export default class Connection extends EventEmitter{
-    public static readonly GATEWAY_URL = new URL("wss://gateway.discord.gg/gateway/bot");
+declare interface WSConnection {
+    on(event: "ready", listener: (ready : Ready) => void) : this;
+    on(event: "close", listener: (code : EventCloseCode) => void) : this;
+}
+
+class WSConnection extends EventEmitter{
+    public static readonly GATEWAY_URL = new URL("wss://gateway.discord.gg/");
     
     private ws : WebSocket;
+
+    private user : User;
     private resume : boolean;
+    private session_id : string;
     private resume_url : string;
+    private application : Application;
+    
     private seq : number;
 
     private token : string;
@@ -31,7 +41,7 @@ export default class Connection extends EventEmitter{
 
     constructor(token : string, intents : Intent[], options : WebsocketOptions){
         super(EventEmitter);
-        this.ws = new WebSocket(Connection.urlMaker(options));
+        this.ws = new WebSocket(WSConnection.urlMaker(options));
         this.resume = false;
 
         this.token = token;
@@ -41,10 +51,9 @@ export default class Connection extends EventEmitter{
             this.ws.addEventListener("message", (message) => {
                 this.receiveMessage(message);});
             this.ws.addEventListener("error", (error) => {this.errorHandler(error)});
-        });
-
-        this.ws.on("error", () => {
-            throw new Error();
+            this.ws.addEventListener("close", (closeEvent : WebSocket.CloseEvent) => {
+                this.handleClose(closeEvent);
+            });
         });
     }
 
@@ -54,9 +63,16 @@ export default class Connection extends EventEmitter{
     }
 
     private handleMessage(message : Message) : void{
+        this.seq = message.sequence ? message.sequence : this.seq;
         switch(message.op){
             case Opcode.dispatch:
                 this.handleDispatch(message);
+                break;
+            case Opcode.inv_session:
+                if(message.data === true){
+                    this.resume = true;
+                }
+                this.handleResume();
                 break;
             case Opcode.hello:
                 this.helloEvent(message);
@@ -69,7 +85,7 @@ export default class Connection extends EventEmitter{
                 break;
         }
     }
-    
+
     private login(){
         const identify = Message.identify({
             token : this.token,
@@ -90,7 +106,7 @@ export default class Connection extends EventEmitter{
             lastSend : new Date(0),
             lastAck : new Date(0)
         };
-        this.heartbeatLoop();
+        setTimeout(() => this.heartbeatLoop(), Math.random() * this.heartbeat.pulse);
         this.login();
     }
 
@@ -106,10 +122,29 @@ export default class Connection extends EventEmitter{
             case EventName.READY:
                 const ready = message.data as Ready;
                 this.resume_url = ready.resume_gateway_url;
+                this.session_id = ready.session_id;
+                this.user = ready.user;
+                this.session_id = ready.session_id;
                 this.emit("ready", ready);
                 break;
             default:
                 console.log(`Unknown event: ${message.name}`);
+                break;
+        }
+    }
+
+    private handleResume() : void{
+    }
+
+    private reconnect() : void{
+        console.log("Resume!");
+    }
+
+    private handleClose(closeEvent : WebSocket.CloseEvent) : void{
+        switch(closeEvent.code){
+            case EventCloseCode.UNKNOWN_ERROR:
+                console.log("Unknown error");
+                this.reconnect();
                 break;
         }
     }
@@ -119,6 +154,8 @@ export default class Connection extends EventEmitter{
     }
 
     public async send(message : Message){
-        if(this.ws.readyState === OPEN) this.ws.send(message.toString());
+        if(this.ws.readyState === OPEN) return this.ws.send(message.toString());
     }
 }
+
+export { WSConnection as default };
