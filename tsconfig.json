@@ -3,6 +3,9 @@
         "module" : "commonjs",
         "target": "ESNext",
         "esModuleInterop": true,
+        "paths": {
+            "@/*": ["./src/*"]
+        }
     },
     "include": ["src/**/*"]
 }

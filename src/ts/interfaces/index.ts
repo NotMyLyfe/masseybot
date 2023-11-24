@@ -7,6 +7,7 @@ export * from "./InstallParams_interface";
 export * from "./MessageJson_interface";
 export * from "./PresenceUpdate_interface";
 export * from "./Ready_interface";
+export * from "./RESTConnectionPromise_interface";
 export * from "./Role_interface";
 export * from "./Sticker_interface";
 export * from "./Team_interface";
