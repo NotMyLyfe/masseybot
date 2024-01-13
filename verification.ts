@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import axios from 'axios';
 import exphbs from 'express-handlebars';
 import qs from 'qs';
-import { discordUsers } from './models/schema';
+import { discordUsers } from './bot/models/schema';
 
 const app = express();
 

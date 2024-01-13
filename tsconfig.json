@@ -2,7 +2,10 @@
     "compilerOptions": {
         "module" : "commonjs",
         "target": "ESNext",
-        "watch" : false,
-        "esModuleInterop": true
-    }
+        "esModuleInterop": true,
+        "paths": {
+            "@/*": ["./src/*"]
+        }
+    },
+    "include": ["src/**/*"]
 }
